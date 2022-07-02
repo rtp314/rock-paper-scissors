@@ -2,11 +2,11 @@
 
 :root {
     --body-background: radial-gradient(hsl(214, 47%, 23%), hsl(237, 49%, 15%));
-    --scissors: linear-gradient(hsl(39, 89%, 49%), hsl(40, 84%, 53%));
-    --paper: linear-gradient(hsl(230, 89%, 62%), hsl(230, 89%, 65%));
-    --rock: linear-gradient(hsl(349, 71%, 52%), hsl(349, 70%, 56%));
-    --lizard: linear-gradient(hsl(261, 73%, 60%), hsl(261, 72%, 63%));
-    --cyan: linear-gradient(hsl(189, 59%, 53%), hsl(189, 58%, 57%));
+    --scissors: linear-gradient(120deg, hsl(39, 89%, 49%), hsl(40, 84%, 53%));
+    --paper: linear-gradient(120deg, hsl(230, 89%, 62%), hsl(230, 89%, 65%));
+    --rock: linear-gradient(120deg, hsl(349, 71%, 52%), hsl(349, 70%, 56%));
+    --lizard: linear-gradient(120deg, hsl(261, 73%, 60%), hsl(261, 72%, 63%));
+    --cyan: linear-gradient(120deg, hsl(189, 59%, 53%), hsl(189, 58%, 57%));
     --dark-text: hsl(229, 25%, 31%);
     --score-text: hsl(229, 64%, 46%);
     --header-border: hsl(217, 16%, 45%);
@@ -14,10 +14,9 @@
 
 body {
     background: var(--body-background);
+    min-height: 95vh;
     margin: 0;
     padding: 0;
-    width: 100vw;
-    height: 100vh;
     color: white;
     font-family: "Barlow Semi Condensed", sans-serif;
 }
@@ -63,39 +62,24 @@ header {
 }
 
 #game {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    margin: 2rem auto;
-    padding-bottom: 1rem;
     width: 400px;
     height: 400px;
-    background-image: url("./images/bg-triangle.svg");
-    background-position: center;
-    background-repeat: no-repeat;
-    position: relative;
+    margin: 2rem auto;
+    --unit-size: 4px;
     --border-width: 13px;
-
-    #game-top-row {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-    }
+    --shadow-size: calc(var(--border-width) / 3);
 
     .game-icon {
         border-radius: 50%;
         padding: 1rem;
-        height: 140px;
-        margin: var(--border-width);
+        height: calc(12 * var(--border-width));
         aspect-ratio: 1;
         display: grid;
         place-content: center;
         position: relative;
         isolation: isolate;
         border-radius: 50%;
-        box-shadow: 0px -5px 0em rgba(0, 0, 0, 0.2) inset;
+        box-shadow: 0px calc(-1 * var(--shadow-size)) 0em rgba(0, 0, 0, 0.2) inset;
 
         &::after {
             content: "";
@@ -104,36 +88,68 @@ header {
             inset: var(--border-width);
             z-index: -1;
             border-radius: 50%;
-            box-shadow: 0px 5px 0em rgba(0, 0, 0, 0.1) inset;
+            box-shadow: 0px var(--shadow-size) 0em rgba(0, 0, 0, 0.1) inset;
         }
 
         &:active {
-            box-shadow: 0px 5px 0em rgba(0, 0, 0, 0.4) inset;
+            box-shadow: 0px var(--shadow-size) 0em rgba(0, 0, 0, 0.4) inset;
 
             svg {
-                transform: translateY(5px);
+                transform: translateY(var(--shadow-size));
             }
 
             &::after {
-                transform: translateY(5px);
+                transform: translateY(var(--shadow-size));
             }
         }
     }
 }
 
+#game-guess {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    width: 100%;
+    height: 100%;
+    background-image: url("./images/bg-triangle.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 70%;
+    position: relative;
+
+    #game-top-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+}
+
+#game-results {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: space-around;
+}
+
 $list: ("rock", "paper", "scissors");
 @each $item in $list {
-    ##{$item} {
+    .#{$item} {
         background: var(--#{$item});
     }
 }
 
 footer {
-    position: fixed;
-    right: 1em;
-    bottom: 1em;
+    width: 100%;
+    position: relative;
 
     button {
+        position: absolute;
+        right: 1em;
         text-transform: uppercase;
         font-family: inherit;
         font-size: 1.5rem;
