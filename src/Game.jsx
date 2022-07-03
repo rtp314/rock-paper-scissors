@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ReactComponent as Rock } from "./images/icon-rock.svg";
 import { ReactComponent as Paper } from "./images/icon-paper.svg";
 import { ReactComponent as Scissors } from "./images/icon-scissors.svg";
@@ -32,14 +32,23 @@ function gameResults(myPlay, opponentsPlay) {
 }
 
 export default function Game({ setScore }) {
+    const [results, setResults] = useState({});
+
     function handleGame(e) {
         const myPlay = e.currentTarget.dataset.icon;
         const opponentsPlay = ["rock", "paper", "scissors"][Math.floor(Math.random() * 3)];
         const gameResult = gameResults(myPlay, opponentsPlay);
-        if (gameResult === "win") setScore((prev) => prev + 1);
-        else if (gameResult === "lose") setScore((prev) => prev - 1);
+
         createBlendAnimation(e.currentTarget, document.getElementById("you-played").getBoundingClientRect());
-        return { myPlay, opponentsPlay, gameResult };
+        document.getElementById("game-guess").style.opacity = 0;
+        document.getElementById("game-results").style.zIndex = 1;
+        document.getElementById("game-results").style.opacity = 1;
+        document.getElementById("you-played").style.opacity = 0;
+        setTimeout(() => {
+            document.getElementById("you-played").style.opacity = 1;
+        }, 350);
+
+        setResults({ myPlay, opponentsPlay, gameResult });
     }
 
     function createBlendAnimation(target, newBoundingRect, delay = 350, ease = "ease-in-out") {
@@ -52,23 +61,28 @@ export default function Game({ setScore }) {
         ghost.style.left = left + "px";
         ghost.style.width = width + "px";
         ghost.style.height = height + "px";
-        target.parentNode.append(ghost);
-        requestAnimationFrame(() => {
+        document.getElementById("game").append(ghost);
+        window.requestAnimationFrame(() => {
             ghost.style.top = newBoundingRect.top + "px";
             ghost.style.left = newBoundingRect.left + "px";
             ghost.style.width = newBoundingRect.width + "px";
             ghost.style.height = newBoundingRect.height + "px";
             setTimeout(() => {
-                console.log("timeout ended");
                 ghost.remove();
             }, delay + 100);
         });
     }
 
+    function handleReset() {
+        document.getElementById("game-guess").style.opacity = 1;
+        document.getElementById("game-results").style.opacity = 0;
+        document.getElementById("game-results").style.zIndex = -1;
+    }
+
     return (
         <div id='game'>
             <GameGuess handleGame={handleGame} />
-            <GameResults />
+            <GameResults results={results} handleReset={handleReset} setScore={setScore} />
         </div>
     );
 }
@@ -91,14 +105,58 @@ const GameGuess = ({ handleGame }) => {
     );
 };
 
-const GameResults = ({ results }) => {
+const GameResults = ({ results, handleReset, setScore }) => {
+    const [showResults, setShowResults] = useState(false);
+    const [showHousePlay, setShowHousePlay] = useState(false);
+    const resultsDiv = useRef();
+    const iconLookup = { rock: <Rock />, paper: <Paper />, scissors: <Scissors /> };
+    const messageLookup = { win: "You Win!", lose: "You Lose", draw: `It's a draw` };
+
+    useEffect(() => {
+        setTimeout(() => {
+            setShowHousePlay(true);
+        }, 500);
+        setTimeout(() => {
+            resultsDiv.current.style.width = "10ch";
+        }, 1000);
+        setTimeout(() => {
+            if (results.gameResult === "win") setScore((prev) => prev + 1);
+            else if (results.gameResult === "lose") setScore((prev) => prev - 1);
+            setShowResults(true);
+        }, 1500);
+    }, [results]);
+
+    function handlePlayAgain() {
+        handleReset();
+        setTimeout(() => {
+            setShowHousePlay(false);
+            setShowResults(false);
+            resultsDiv.current.style.width = "0px";
+        }, 400);
+    }
+
     return (
         <div id='game-results'>
-            <div id='you-played' className='game-icon rock'>
-                <Rock />
+            <div className='results-column'>
+                <span>You Played</span>
+                <div id='you-played' className={"game-icon " + results.myPlay}>
+                    {iconLookup[results.myPlay]}
+                </div>
             </div>
-            <div className='game-icon paper'>
-                <Paper />
+            <div className='results-column'>
+                <div ref={resultsDiv} id='results'>
+                    {showResults && messageLookup[results.gameResult]}
+                </div>
+                {showResults && <button onClick={handlePlayAgain}>Play Again</button>}
+            </div>
+            <div className='results-column'>
+                <span>The House Played</span>
+                <div
+                    id='opponent'
+                    className={showHousePlay ? "animate-pop game-icon " + results.opponentsPlay : "blank"}
+                >
+                    {showHousePlay && iconLookup[results.opponentsPlay]}
+                </div>
             </div>
         </div>
     );
