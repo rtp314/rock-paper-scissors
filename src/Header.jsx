@@ -7,11 +7,9 @@ export default function Header({ score }) {
 
     useEffect(() => {
         const scoreChange = score - oldScore.current;
-        if (scoreChange === 0) {
-            setScoreGhostText("+0"); //never actually shows, since useEffect doesn't fire
-        } else if (scoreChange > 0) {
+        if (scoreChange > 0) {
             setScoreGhostText("+1");
-        } else {
+        } else if (scoreChange < 0) {
             setScoreGhostText("-1");
         }
         oldScore.current = score;

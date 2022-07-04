@@ -46,7 +46,7 @@ export default function Game({ setScore }) {
         document.getElementById("you-played").style.opacity = 0;
         setTimeout(() => {
             document.getElementById("you-played").style.opacity = 1;
-        }, 350);
+        }, 450);
 
         setResults({ myPlay, opponentsPlay, gameResult });
     }
@@ -54,7 +54,7 @@ export default function Game({ setScore }) {
     function createBlendAnimation(target, newBoundingRect, delay = 350, ease = "ease-in-out") {
         const { top, left, width, height } = target.getBoundingClientRect();
         const ghost = target.cloneNode(true);
-        ghost.style.transition = `top ${delay}ms ${ease}, left ${delay}ms ${ease}, width ${delay}ms ${ease}, height ${delay}ms ${ease}`;
+        ghost.style.transition = `top ${delay}ms ${ease} 100ms, left ${delay}ms ${ease} 100ms, width ${delay}ms ${ease} 100ms, height ${delay}ms ${ease} 100ms`;
         ghost.style.zIndex = 10;
         ghost.style.position = "fixed";
         ghost.style.top = top + "px";
@@ -112,18 +112,44 @@ const GameResults = ({ results, handleReset, setScore }) => {
     const iconLookup = { rock: <Rock />, paper: <Paper />, scissors: <Scissors /> };
     const messageLookup = { win: "You Win!", lose: "You Lose", draw: `It's a draw` };
 
+    function addWinAnimation(parent) {
+        const div1 = document.createElement("div");
+        const div2 = document.createElement("div");
+        const div3 = document.createElement("div");
+        div1.classList.add("win-animation");
+        div2.classList.add("win-animation");
+        div3.classList.add("win-animation");
+        div2.appendChild(div3);
+        div1.appendChild(div2);
+        parent.appendChild(div1);
+        return div1;
+    }
+
     useEffect(() => {
-        setTimeout(() => {
-            setShowHousePlay(true);
-        }, 500);
-        setTimeout(() => {
-            resultsDiv.current.style.width = "10ch";
-        }, 1000);
-        setTimeout(() => {
-            if (results.gameResult === "win") setScore((prev) => prev + 1);
-            else if (results.gameResult === "lose") setScore((prev) => prev - 1);
-            setShowResults(true);
-        }, 1500);
+        if (results.myPlay) {
+            setTimeout(() => {
+                setShowHousePlay(true);
+            }, 500);
+            setTimeout(() => {
+                resultsDiv.current.style.width = "10ch";
+            }, 1000);
+            setTimeout(() => {
+                if (results.gameResult === "win") {
+                    const animation = addWinAnimation(document.getElementById("you-played"));
+                    setTimeout(() => {
+                        animation.remove();
+                    }, 3000);
+                    setScore((prev) => prev + 1);
+                } else if (results.gameResult === "lose") {
+                    const animation = addWinAnimation(document.getElementById("opponent"));
+                    setTimeout(() => {
+                        animation.remove();
+                    }, 3000);
+                    setScore((prev) => prev - 1);
+                }
+                setShowResults(true);
+            }, 1500);
+        }
     }, [results]);
 
     function handlePlayAgain() {

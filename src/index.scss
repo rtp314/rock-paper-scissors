@@ -108,16 +108,20 @@ header {
         display: grid;
         place-content: center;
         position: relative;
-        isolation: isolate;
+        // isolation: isolate;
         border-radius: 50%;
         box-shadow: 0px calc(-1 * var(--shadow-size)) 0em rgba(0, 0, 0, 0.2) inset;
+
+        & svg {
+            z-index: 3;
+        }
 
         &::after {
             content: "";
             background-color: white;
             position: absolute;
             inset: var(--border-width);
-            z-index: -1;
+            z-index: 1;
             border-radius: 50%;
             box-shadow: 0px var(--shadow-size) 0em rgba(0, 0, 0, 0.1) inset;
         }
@@ -234,6 +238,33 @@ header {
         color: var(--dark-text);
         background-color: white;
     }
+
+    .win-animation {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        position: absolute;
+        inset: -10%;
+        z-index: -2;
+        animation: expand 3000ms ease-in-out both;
+    }
+
+    @keyframes expand {
+        0% {
+            transform: scale(0.1);
+        }
+
+        40% {
+            transform: scale(1.2);
+        }
+
+        80% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(0.1);
+        }
+    }
 }
 
 $list: ("rock", "paper", "scissors");
@@ -269,6 +300,7 @@ footer {
         background: rgba(0, 0, 0, 0.4);
         display: grid;
         place-content: center;
+        z-index: 10;
     }
 
     #rules {
